@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/itsLeonB/cv-api/server"
+	"github.com/itsLeonB/cv-api/internal/config"
 	"github.com/joho/godotenv"
 )
 
@@ -13,6 +13,6 @@ func main() {
 		log.Fatalf("error loading env: %e", err)
 	}
 
-	s := server.Init()
-	s.Serve()
+	a := config.SetupApp()
+	a.Serve()
 }

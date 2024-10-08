@@ -1,8 +1,7 @@
-package server
+package config
 
 import (
 	"context"
-	"database/sql"
 	"log"
 	"net/http"
 	"os"
@@ -10,28 +9,43 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/itsLeonB/cv-api/database"
+	"github.com/gin-gonic/gin"
+	"github.com/itsLeonB/cv-api/internal/delivery/apphttp"
+	"github.com/itsLeonB/cv-api/internal/delivery/apphttp/route"
+	"github.com/jackc/pgx/v5"
 )
 
-type Server struct {
-	db     *sql.DB
-	router http.Handler
+type App struct {
+	PostgresConn *pgx.Conn
+	Router       *gin.Engine
 }
 
-func Init() *Server {
-	s := new(Server)
-	s.ConnectDatabase()
-	handlers := SetupHandlers(s.db)
-	s.router = SetupRouter(handlers)
+func SetupApp() *App {
+	conn := NewPostgresDB()
+	controllers := apphttp.SetupControllers(conn)
 
-	return s
+	gin.SetMode(os.Getenv("APP_ENV"))
+	r := gin.Default()
+
+	rc := route.RouteConfig{
+		Router:      r,
+		Controllers: controllers,
+	}
+
+	rc.SetupRoutes()
+
+	return &App{
+		PostgresConn: conn,
+		Router:       r,
+	}
 }
 
-func (s *Server) Serve() {
-	defer s.db.Close()
+func (a *App) Serve() {
+	ctx := context.Background()
+	defer a.PostgresConn.Close(ctx)
 	srv := http.Server{
 		Addr:    ":" + os.Getenv("APP_PORT"),
-		Handler: s.router,
+		Handler: a.Router,
 	}
 
 	go func() {
@@ -58,13 +72,4 @@ func (s *Server) Serve() {
 	}
 
 	log.Println("server successfully shutdown")
-}
-
-func (s *Server) ConnectDatabase() {
-	db, err := database.ConnectPostgres()
-	if err != nil {
-		log.Fatalf("fail connect db: %s", err)
-	}
-
-	s.db = db
 }
