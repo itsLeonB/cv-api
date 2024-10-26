@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/itsLeonB/cv-api/internal/delivery/apphttp"
+	"github.com/itsLeonB/cv-api/internal/delivery/apphttp/middleware"
 	"github.com/itsLeonB/cv-api/internal/delivery/apphttp/route"
 	"github.com/jackc/pgx/v5"
 )
@@ -26,6 +27,7 @@ func SetupApp() *App {
 
 	gin.SetMode(os.Getenv("APP_ENV"))
 	r := gin.Default()
+	r.Use(middleware.HandleError())
 
 	rc := route.RouteConfig{
 		Router:      r,
