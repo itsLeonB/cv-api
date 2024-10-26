@@ -26,8 +26,11 @@ func SetupApp() *App {
 	controllers := apphttp.SetupControllers(conn)
 
 	gin.SetMode(os.Getenv("APP_ENV"))
-	r := gin.Default()
-	r.Use(middleware.HandleError())
+	r := gin.New()
+	r.Use(
+		gin.Recovery(),
+		middleware.HandleError(),
+	)
 
 	rc := route.RouteConfig{
 		Router:      r,

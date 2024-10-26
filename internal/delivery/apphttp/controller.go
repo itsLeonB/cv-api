@@ -18,7 +18,7 @@ func NewController(uc usecase.UseCase) *Controller {
 
 func (c *Controller) GetShortSummary() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id, err := QueryNumeric(ctx, "id")
+		id, _, err := QueryNumeric(ctx, "id", true)
 		if err != nil {
 			_ = ctx.Error(err)
 			return
