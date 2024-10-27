@@ -13,6 +13,7 @@ import (
 type SkillRepository interface {
 	InsertCategory(ctx context.Context, category *entity.SkillCategory) error
 	SelectCategoryByName(ctx context.Context, name string) (*entity.SkillCategory, error)
+	SelectAllCategories(ctx context.Context) ([]*entity.SkillCategory, error)
 }
 
 type skillRepository struct {
@@ -69,4 +70,36 @@ func (r *skillRepository) SelectCategoryByName(ctx context.Context, name string)
 	}
 
 	return category, nil
+}
+
+func (r *skillRepository) SelectAllCategories(ctx context.Context) ([]*entity.SkillCategory, error) {
+	methodName := "SelectAllCategories()"
+	sql := `
+		SELECT id, name, created_at, updated_at, deleted_at
+		FROM skill_categories
+	`
+
+	rows, err := r.conn.Query(ctx, sql)
+	if err != nil {
+		return nil, apperror.NewAppError(
+			err, r.structName, methodName,
+			"r.conn.Query()",
+		)
+	}
+
+	categories := []*entity.SkillCategory{}
+	for rows.Next() {
+		category := new(entity.SkillCategory)
+		err = rows.Scan(&category.ID, &category.Name, &category.CreatedAt, &category.UpdatedAt, &category.DeletedAt)
+		if err != nil {
+			return nil, apperror.NewAppError(
+				err, r.structName, methodName,
+				"rows.Scan()",
+			)
+		}
+
+		categories = append(categories, category)
+	}
+
+	return categories, nil
 }

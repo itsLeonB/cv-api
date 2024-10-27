@@ -18,8 +18,8 @@ func NewSkillController(skillUsecase usecase.SkillUsecase) *SkillController {
 	return &SkillController{"SkillController", skillUsecase}
 }
 
-func (c *SkillController) HandleInsertCategory() gin.HandlerFunc {
-	methodName := "HandleInsertCategory()"
+func (c *SkillController) HandleCreateCategory() gin.HandlerFunc {
+	methodName := "HandleCreateCategory()"
 	return func(ctx *gin.Context) {
 		request := new(model.NewSkillCategoryRequest)
 		err := ctx.ShouldBindJSON(request)
@@ -31,12 +31,24 @@ func (c *SkillController) HandleInsertCategory() gin.HandlerFunc {
 			return
 		}
 
-		response, err := c.skillUsecase.InsertCategory(ctx, request)
+		response, err := c.skillUsecase.CreateCategory(ctx, request)
 		if err != nil {
 			_ = ctx.Error(err)
 			return
 		}
 
 		ctx.JSON(http.StatusCreated, model.NewSuccessResponse(response))
+	}
+}
+
+func (c *SkillController) HandleGetAllCategories() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		categories, err := c.skillUsecase.GetAllCategories(ctx)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, model.NewSuccessResponse(categories))
 	}
 }

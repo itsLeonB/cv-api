@@ -12,7 +12,8 @@ import (
 )
 
 type SkillUsecase interface {
-	InsertCategory(ctx context.Context, request *model.NewSkillCategoryRequest) (*model.SkillCategoryResponse, error)
+	CreateCategory(ctx context.Context, request *model.NewSkillCategoryRequest) (*model.SkillCategoryResponse, error)
+	GetAllCategories(ctx context.Context) ([]*model.SkillCategoryResponse, error)
 }
 
 type skillUsecase struct {
@@ -24,7 +25,7 @@ func NewSkillUsecase(skillRepository repository.SkillRepository) SkillUsecase {
 	return &skillUsecase{"skillUsecase", skillRepository}
 }
 
-func (u *skillUsecase) InsertCategory(ctx context.Context, request *model.NewSkillCategoryRequest) (*model.SkillCategoryResponse, error) {
+func (u *skillUsecase) CreateCategory(ctx context.Context, request *model.NewSkillCategoryRequest) (*model.SkillCategoryResponse, error) {
 	methodName := "InsertCategory()"
 	existingCategory, err := u.skillRepository.SelectCategoryByName(ctx, request.Name)
 	if err != nil {
@@ -44,4 +45,18 @@ func (u *skillUsecase) InsertCategory(ctx context.Context, request *model.NewSki
 	}
 
 	return converter.SkillCategoryEntityToResponse(insertingCategory), nil
+}
+
+func (u *skillUsecase) GetAllCategories(ctx context.Context) ([]*model.SkillCategoryResponse, error) {
+	categories, err := u.skillRepository.SelectAllCategories(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	responses := make([]*model.SkillCategoryResponse, len(categories))
+	for i, category := range categories {
+		responses[i] = converter.SkillCategoryEntityToResponse(category)
+	}
+
+	return responses, nil
 }

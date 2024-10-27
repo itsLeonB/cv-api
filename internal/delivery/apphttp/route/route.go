@@ -19,7 +19,8 @@ func (rc *RouteConfig) SetupRoutes() {
 
 	skillRoutes := rc.Router.Group("/skills")
 	skillCategoryRoutes := skillRoutes.Group("/categories")
-	skillCategoryRoutes.POST("", rc.Controllers.Skill.HandleInsertCategory())
+	skillCategoryRoutes.POST("", rc.Controllers.Skill.HandleCreateCategory())
+	skillCategoryRoutes.GET("", rc.Controllers.Skill.HandleGetAllCategories())
 
 	rc.Router.GET("/about", rc.Controllers.Controller.GetShortSummary())
 	rc.Router.GET("/summary", rc.Controllers.Controller.HandleSummary())
