@@ -1,5 +1,15 @@
+CREATE TABLE IF NOT EXISTS users (
+    id BIGSERIAL PRIMARY KEY,
+    email VARCHAR(89) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS profiles (
     id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users (id),
     full_name VARCHAR(255) NOT NULL,
     nickname VARCHAR(255) NOT NULL,
     occupation VARCHAR(255) NOT NULL,

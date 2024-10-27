@@ -25,3 +25,5 @@ DROP TABLE IF EXISTS contacts;
 DROP TABLE IF EXISTS contact_types;
 
 DROP TABLE IF EXISTS profiles;
+
+DROP TABLE IF EXISTS users;

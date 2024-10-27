@@ -14,5 +14,8 @@ func (rc *RouteConfig) SetupRoutes() {
 	rc.Router.HandleMethodNotAllowed = true
 	rc.Router.ContextWithFallback = true
 
+	authRoutes := rc.Router.Group("/auth")
+	authRoutes.POST("/register", rc.Controllers.Auth.HandleRegister())
+
 	rc.Router.GET("/about", rc.Controllers.Controller.GetShortSummary())
 }

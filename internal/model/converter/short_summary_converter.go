@@ -13,3 +13,10 @@ func ProfileToShortSummary(profile *entity.Profile) *model.ShortSummary {
 		Body:   fmt.Sprintf("I'm a %s based in %s. %s", profile.Occupation, profile.Location, profile.ShortSummary),
 	}
 }
+
+func RegisterRequestToUser(request *model.RegisterRequest) *entity.User {
+	return &entity.User{
+		Email:    request.Email,
+		Password: request.Password,
+	}
+}

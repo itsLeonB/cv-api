@@ -29,3 +29,11 @@ func BadRequestError(details any) *HttpError {
 		Details:    details,
 	}
 }
+
+func ConflictError(details any) *HttpError {
+	return &HttpError{
+		StatusCode: http.StatusConflict,
+		Message:    "conflict with existing data",
+		Details:    details,
+	}
+}

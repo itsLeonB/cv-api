@@ -1,5 +1,9 @@
+INSERT INTO users (email, password)
+VALUES ('mail@mail.com', 'password');
+
 INSERT INTO
     profiles (
+        user_id,
         full_name,
         nickname,
         occupation,
@@ -8,6 +12,7 @@ INSERT INTO
         summary
     )
 VALUES (
+        1,
         'Ellion Blessan',
         'Leon',
         'Software Engineer and Machine Learning enthusiast',
