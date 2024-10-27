@@ -16,6 +16,7 @@ type SkillUsecase interface {
 	GetAllCategories(ctx context.Context) ([]*model.SkillCategoryResponse, error)
 	GetCategoryByID(ctx context.Context, id int) (*model.SkillCategoryResponse, error)
 	Create(ctx context.Context, request *model.NewSkillRequest) (*model.SkillResponse, error)
+	GetAll(ctx context.Context) ([]*model.SkillResponse, error)
 }
 
 type skillUsecase struct {
@@ -87,4 +88,18 @@ func (u *skillUsecase) Create(ctx context.Context, request *model.NewSkillReques
 	}
 
 	return converter.SkillEntityToResponse(insertingSkill), nil
+}
+
+func (u *skillUsecase) GetAll(ctx context.Context) ([]*model.SkillResponse, error) {
+	skills, err := u.skillRepository.SelectAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	responses := make([]*model.SkillResponse, len(skills))
+	for i := range skills {
+		responses[i] = converter.SkillEntityToResponse(skills[i])
+	}
+
+	return responses, nil
 }

@@ -93,3 +93,15 @@ func (c *SkillController) HandleCreate() gin.HandlerFunc {
 		ctx.JSON(http.StatusCreated, model.NewSuccessResponse(skill))
 	}
 }
+
+func (c *SkillController) HandleGetAll() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		skills, err := c.skillUsecase.GetAll(ctx)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, model.NewSuccessResponse(skills))
+	}
+}

@@ -16,6 +16,7 @@ type SkillRepository interface {
 	SelectAllCategories(ctx context.Context) ([]*entity.SkillCategory, error)
 	SelectCategoryByID(ctx context.Context, id int) (*entity.SkillCategory, error)
 	Insert(ctx context.Context, skill *entity.Skill) error
+	SelectAll(ctx context.Context) ([]*entity.Skill, error)
 }
 
 type skillRepository struct {
@@ -153,4 +154,45 @@ func (r *skillRepository) Insert(ctx context.Context, skill *entity.Skill) error
 
 		return nil
 	})
+}
+
+func (r *skillRepository) SelectAll(ctx context.Context) ([]*entity.Skill, error) {
+	methodName := "SelectAll()"
+	sql := `
+		SELECT id, profile_id, category_id, name, description, created_at, updated_at, deleted_at
+		FROM skills
+	`
+
+	rows, err := r.conn.Query(ctx, sql)
+	if err != nil {
+		return nil, apperror.NewAppError(
+			err, r.structName, methodName,
+			"r.conn.Query()",
+		)
+	}
+
+	skills := []*entity.Skill{}
+	for rows.Next() {
+		skill := new(entity.Skill)
+		err = rows.Scan(
+			&skill.ID,
+			&skill.ProfileID,
+			&skill.CategoryID,
+			&skill.Name,
+			&skill.Description,
+			&skill.CreatedAt,
+			&skill.UpdatedAt,
+			&skill.DeletedAt,
+		)
+		if err != nil {
+			return nil, apperror.NewAppError(
+				err, r.structName, methodName,
+				"rows.Scan()",
+			)
+		}
+
+		skills = append(skills, skill)
+	}
+
+	return skills, nil
 }
