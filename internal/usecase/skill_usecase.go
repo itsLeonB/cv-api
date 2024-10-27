@@ -15,6 +15,7 @@ type SkillUsecase interface {
 	CreateCategory(ctx context.Context, request *model.NewSkillCategoryRequest) (*model.SkillCategoryResponse, error)
 	GetAllCategories(ctx context.Context) ([]*model.SkillCategoryResponse, error)
 	GetCategoryByID(ctx context.Context, id int) (*model.SkillCategoryResponse, error)
+	Create(ctx context.Context, request *model.NewSkillRequest) (*model.SkillResponse, error)
 }
 
 type skillUsecase struct {
@@ -76,4 +77,14 @@ func (u *skillUsecase) GetCategoryByID(ctx context.Context, id int) (*model.Skil
 	}
 
 	return converter.SkillCategoryEntityToResponse(category), nil
+}
+
+func (u *skillUsecase) Create(ctx context.Context, request *model.NewSkillRequest) (*model.SkillResponse, error) {
+	insertingSkill := converter.NewSkillRequestToEntity(request)
+	err := u.skillRepository.Insert(ctx, insertingSkill)
+	if err != nil {
+		return nil, err
+	}
+
+	return converter.SkillEntityToResponse(insertingSkill), nil
 }

@@ -70,3 +70,26 @@ func (c *SkillController) HandleGetCategoryByID() gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, model.NewSuccessResponse(category))
 	}
 }
+
+func (c *SkillController) HandleCreate() gin.HandlerFunc {
+	methodName := "HandleCreate()"
+	return func(ctx *gin.Context) {
+		request := new(model.NewSkillRequest)
+		err := ctx.ShouldBindJSON(request)
+		if err != nil {
+			_ = ctx.Error(apperror.NewAppError(
+				err, c.structName, methodName,
+				"ctx.ShouldBindJSON()",
+			))
+			return
+		}
+
+		skill, err := c.skillUsecase.Create(ctx, request)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		ctx.JSON(http.StatusCreated, model.NewSuccessResponse(skill))
+	}
+}

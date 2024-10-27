@@ -15,6 +15,7 @@ type SkillRepository interface {
 	SelectCategoryByName(ctx context.Context, name string) (*entity.SkillCategory, error)
 	SelectAllCategories(ctx context.Context) ([]*entity.SkillCategory, error)
 	SelectCategoryByID(ctx context.Context, id int) (*entity.SkillCategory, error)
+	Insert(ctx context.Context, skill *entity.Skill) error
 }
 
 type skillRepository struct {
@@ -129,4 +130,27 @@ func (r *skillRepository) SelectCategoryByID(ctx context.Context, id int) (*enti
 	}
 
 	return category, nil
+}
+
+func (r *skillRepository) Insert(ctx context.Context, skill *entity.Skill) error {
+	methodName := "Insert()"
+	return runInTx(r.conn, ctx, func(tx pgx.Tx) error {
+		sql := `
+			INSERT INTO skills (profile_id, category_id, name, description)
+			VALUES ($1, $2, $3, $4)
+			RETURNING id, created_at, updated_at
+		`
+
+		err := tx.QueryRow(ctx, sql,
+			skill.ProfileID, skill.CategoryID, skill.Name, skill.Description,
+		).Scan(&skill.ID, &skill.CreatedAt, &skill.UpdatedAt)
+		if err != nil {
+			return apperror.NewAppError(
+				err, r.structName, methodName,
+				"tx.QueryRow().Scan()",
+			)
+		}
+
+		return nil
+	})
 }

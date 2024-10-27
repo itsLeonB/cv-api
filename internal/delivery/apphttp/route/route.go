@@ -18,6 +18,7 @@ func (rc *RouteConfig) SetupRoutes() {
 	authRoutes.POST("/register", rc.Controllers.Auth.HandleRegister())
 
 	skillRoutes := rc.Router.Group("/skills")
+	skillRoutes.POST("", rc.Controllers.Skill.HandleCreate())
 	skillCategoryRoutes := skillRoutes.Group("/categories")
 	skillCategoryRoutes.POST("", rc.Controllers.Skill.HandleCreateCategory())
 	skillCategoryRoutes.GET("", rc.Controllers.Skill.HandleGetAllCategories())
