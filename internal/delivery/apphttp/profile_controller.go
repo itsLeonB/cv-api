@@ -19,7 +19,7 @@ func NewProfileController(profileUsecase usecase.ProfileUsecase) *ProfileControl
 
 func (c *ProfileController) GetShortSummary() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id, _, err := QueryNumeric(ctx, "id", true)
+		id, _, err := GetNumericQueryParam(ctx, "id", true)
 		if err != nil {
 			_ = ctx.Error(err)
 			return
@@ -37,7 +37,7 @@ func (c *ProfileController) GetShortSummary() gin.HandlerFunc {
 
 func (c *ProfileController) HandleSummary() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id, _, err := QueryNumeric(ctx, "id", true)
+		id, _, err := GetNumericQueryParam(ctx, "id", true)
 		if err != nil {
 			_ = ctx.Error(err)
 			return

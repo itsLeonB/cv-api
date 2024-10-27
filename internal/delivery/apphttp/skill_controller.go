@@ -52,3 +52,21 @@ func (c *SkillController) HandleGetAllCategories() gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, model.NewSuccessResponse(categories))
 	}
 }
+
+func (c *SkillController) HandleGetCategoryByID() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id, err := GetNumericPathParam(ctx, "id")
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		category, err := c.skillUsecase.GetCategoryByID(ctx, id)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, model.NewSuccessResponse(category))
+	}
+}

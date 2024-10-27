@@ -37,3 +37,11 @@ func ConflictError(details any) *HttpError {
 		Details:    details,
 	}
 }
+
+func NotFoundError(details any) *HttpError {
+	return &HttpError{
+		StatusCode: http.StatusNotFound,
+		Message:    "data not found",
+		Details:    details,
+	}
+}
