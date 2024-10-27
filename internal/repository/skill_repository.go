@@ -17,6 +17,7 @@ type SkillRepository interface {
 	SelectCategoryByID(ctx context.Context, id int) (*entity.SkillCategory, error)
 	Insert(ctx context.Context, skill *entity.Skill) error
 	SelectAll(ctx context.Context) ([]*entity.Skill, error)
+	SelectByID(ctx context.Context, id int) (*entity.Skill, error)
 }
 
 type skillRepository struct {
@@ -195,4 +196,58 @@ func (r *skillRepository) SelectAll(ctx context.Context) ([]*entity.Skill, error
 	}
 
 	return skills, nil
+}
+
+func (r *skillRepository) SelectByID(ctx context.Context, id int) (*entity.Skill, error) {
+	methodName := "SelectAll()"
+	sql := `
+		SELECT 
+			skill.id, 
+			skill.profile_id, 
+			skill.category_id, 
+			skill.name, 
+			skill.description, 
+			skill.created_at, 
+			skill.updated_at, 
+			skill.deleted_at,
+			category.id,
+			category.name,
+			category.created_at,
+			category.updated_at,
+			category.deleted_at
+		FROM skills skill
+		JOIN skill_categories category ON skill.category_id = category.id
+		WHERE skill.id = $1
+	`
+
+	skill := new(entity.Skill)
+	category := new(entity.SkillCategory)
+	err := r.conn.QueryRow(ctx, sql, id).Scan(
+		&skill.ID,
+		&skill.ProfileID,
+		&skill.CategoryID,
+		&skill.Name,
+		&skill.Description,
+		&skill.CreatedAt,
+		&skill.UpdatedAt,
+		&skill.DeletedAt,
+		&category.ID,
+		&category.Name,
+		&category.CreatedAt,
+		&category.UpdatedAt,
+		&category.DeletedAt,
+	)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return nil, apperror.NewAppError(
+			err, r.structName, methodName,
+			"r.conn.Query().Scan()",
+		)
+	}
+	if err != nil && errors.Is(err, pgx.ErrNoRows) {
+		return nil, nil
+	}
+
+	skill.Category = category
+
+	return skill, nil
 }

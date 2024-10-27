@@ -17,6 +17,7 @@ type SkillUsecase interface {
 	GetCategoryByID(ctx context.Context, id int) (*model.SkillCategoryResponse, error)
 	Create(ctx context.Context, request *model.NewSkillRequest) (*model.SkillResponse, error)
 	GetAll(ctx context.Context) ([]*model.SkillResponse, error)
+	GetByID(ctx context.Context, id int) (*model.SkillResponse, error)
 }
 
 type skillUsecase struct {
@@ -102,4 +103,20 @@ func (u *skillUsecase) GetAll(ctx context.Context) ([]*model.SkillResponse, erro
 	}
 
 	return responses, nil
+}
+
+func (u *skillUsecase) GetByID(ctx context.Context, id int) (*model.SkillResponse, error) {
+	methodName := fmt.Sprintf("GetByID(id: %d)", id)
+	skill, err := u.skillRepository.SelectByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if skill == nil {
+		return nil, apperror.NewAppError(
+			httperror.NotFoundError(fmt.Sprintf("skill with id: %d is not found", id)),
+			u.structName, methodName, "skill == nil",
+		)
+	}
+
+	return converter.SkillEntityToResponse(skill), nil
 }

@@ -105,3 +105,21 @@ func (c *SkillController) HandleGetAll() gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, model.NewSuccessResponse(skills))
 	}
 }
+
+func (c *SkillController) HandleGetByID() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id, err := GetNumericPathParam(ctx, "id")
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		skill, err := c.skillUsecase.GetByID(ctx, id)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, model.NewSuccessResponse(skill))
+	}
+}
