@@ -17,7 +17,7 @@ func runInTx(conn *pgx.Conn, ctx context.Context, fn func(tx pgx.Tx) error) erro
 
 	err = fn(tx)
 	if err != nil {
-		return apperror.NewAppError(err, "", methodName, "fn(tx)")
+		return err
 	}
 
 	err = tx.Commit(ctx)

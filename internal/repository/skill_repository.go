@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/itsLeonB/cv-api/internal/apperror"
+	"github.com/itsLeonB/cv-api/internal/delivery/apphttp/httperror"
 	"github.com/itsLeonB/cv-api/internal/entity"
 	"github.com/jackc/pgx/v5"
 )
@@ -18,6 +19,8 @@ type SkillRepository interface {
 	Insert(ctx context.Context, skill *entity.Skill) error
 	SelectAll(ctx context.Context) ([]*entity.Skill, error)
 	SelectByID(ctx context.Context, id int) (*entity.Skill, error)
+	Update(ctx context.Context, skill *entity.Skill) error
+	DeleteByID(ctx context.Context, id int) error
 }
 
 type skillRepository struct {
@@ -250,4 +253,54 @@ func (r *skillRepository) SelectByID(ctx context.Context, id int) (*entity.Skill
 	skill.Category = category
 
 	return skill, nil
+}
+
+func (r *skillRepository) Update(ctx context.Context, skill *entity.Skill) error {
+	methodName := "Update()"
+	return runInTx(r.conn, ctx, func(tx pgx.Tx) error {
+		sql := `
+			UPDATE skills
+			SET category_id = $1, name = $2, description = $3, updated_at = NOW()
+			WHERE id = $4
+			RETURNING updated_at
+		`
+
+		err := tx.QueryRow(ctx, sql,
+			skill.CategoryID, skill.Name, skill.Description, skill.ID,
+		).Scan(&skill.UpdatedAt)
+		if err != nil {
+			return apperror.NewAppError(
+				err, r.structName, methodName,
+				"tx.QueryRow().Scan()",
+			)
+		}
+
+		return nil
+	})
+}
+
+func (r *skillRepository) DeleteByID(ctx context.Context, id int) error {
+	methodName := fmt.Sprintf("DeleteByID(id: %d)", id)
+	return runInTx(r.conn, ctx, func(tx pgx.Tx) error {
+		sql := `
+			UPDATE skills
+			SET deleted_at = NOW()
+			WHERE id = $1
+		`
+
+		cmd, err := tx.Exec(ctx, sql, id)
+		if err != nil {
+			return apperror.NewAppError(
+				err, r.structName, methodName, "tx.Exec()",
+			)
+		}
+		if cmd.RowsAffected() != 1 {
+			return apperror.NewAppError(
+				httperror.InternalServerError(),
+				r.structName, methodName, "cmd.RowsAffected() != 1",
+			)
+		}
+
+		return nil
+	})
 }

@@ -123,3 +123,51 @@ func (c *SkillController) HandleGetByID() gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, model.NewSuccessResponse(skill))
 	}
 }
+
+func (c *SkillController) HandleUpdate() gin.HandlerFunc {
+	methodName := "HandleUpdate()"
+	return func(ctx *gin.Context) {
+		id, err := GetNumericPathParam(ctx, "id")
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		request := new(model.UpdateSkillRequest)
+		err = ctx.ShouldBindJSON(request)
+		if err != nil {
+			_ = ctx.Error(apperror.NewAppError(
+				err, c.structName, methodName,
+				"ctx.ShouldBindJSON()",
+			))
+			return
+		}
+
+		request.ID = id
+		response, err := c.skillUsecase.Update(ctx, request)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, model.NewSuccessResponse(response))
+	}
+}
+
+func (c *SkillController) HandleDeleteByID() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id, err := GetNumericPathParam(ctx, "id")
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		err = c.skillUsecase.DeleteByID(ctx, id)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		ctx.JSON(http.StatusNoContent, nil)
+	}
+}

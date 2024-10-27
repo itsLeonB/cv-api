@@ -30,3 +30,10 @@ type SkillResponse struct {
 	DeletedAt   string                 `json:"deleted_at,omitempty"`
 	Category    *SkillCategoryResponse `json:"category,omitempty"`
 }
+
+type UpdateSkillRequest struct {
+	ID          int
+	CategoryID  int    `json:"category_id" binding:"required,numeric,gte=1"`
+	Name        string `json:"name" binding:"required,min=1,max=255"`
+	Description string `json:"description" binding:"required,min=3,max=255"`
+}

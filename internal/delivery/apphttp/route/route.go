@@ -21,6 +21,8 @@ func (rc *RouteConfig) SetupRoutes() {
 	skillRoutes.POST("", rc.Controllers.Skill.HandleCreate())
 	skillRoutes.GET("", rc.Controllers.Skill.HandleGetAll())
 	skillRoutes.GET("/:id", rc.Controllers.Skill.HandleGetByID())
+	skillRoutes.PUT("/:id", rc.Controllers.Skill.HandleUpdate())
+	skillRoutes.DELETE("/:id", rc.Controllers.Skill.HandleDeleteByID())
 	skillCategoryRoutes := skillRoutes.Group("/categories")
 	skillCategoryRoutes.POST("", rc.Controllers.Skill.HandleCreateCategory())
 	skillCategoryRoutes.GET("", rc.Controllers.Skill.HandleGetAllCategories())

@@ -18,6 +18,8 @@ type SkillUsecase interface {
 	Create(ctx context.Context, request *model.NewSkillRequest) (*model.SkillResponse, error)
 	GetAll(ctx context.Context) ([]*model.SkillResponse, error)
 	GetByID(ctx context.Context, id int) (*model.SkillResponse, error)
+	Update(ctx context.Context, request *model.UpdateSkillRequest) (*model.SkillResponse, error)
+	DeleteByID(ctx context.Context, id int) error
 }
 
 type skillUsecase struct {
@@ -119,4 +121,55 @@ func (u *skillUsecase) GetByID(ctx context.Context, id int) (*model.SkillRespons
 	}
 
 	return converter.SkillEntityToResponse(skill), nil
+}
+
+func (u *skillUsecase) Update(ctx context.Context, request *model.UpdateSkillRequest) (*model.SkillResponse, error) {
+	methodName := "Update()"
+	skill, err := u.skillRepository.SelectByID(ctx, request.ID)
+	if err != nil {
+		return nil, err
+	}
+	if skill == nil {
+		return nil, apperror.NewAppError(
+			httperror.NotFoundError(fmt.Sprintf("skill with id: %d is not found", request.ID)),
+			u.structName, methodName, "skill == nil",
+		)
+	}
+
+	skill.CategoryID = request.CategoryID
+	skill.Name = request.Name
+	skill.Description = request.Description
+	err = u.skillRepository.Update(ctx, skill)
+	if err != nil {
+		return nil, err
+	}
+
+	return converter.SkillEntityToResponse(skill), nil
+}
+
+func (u *skillUsecase) DeleteByID(ctx context.Context, id int) error {
+	methodName := "DeleteByID()"
+	skill, err := u.skillRepository.SelectByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if skill == nil {
+		return apperror.NewAppError(
+			httperror.NotFoundError(fmt.Sprintf("skill with id: %d is not found", id)),
+			u.structName, methodName, "skill == nil",
+		)
+	}
+	if skill.DeletedAt.Valid {
+		return apperror.NewAppError(
+			httperror.GoneError("skill already deleted"),
+			u.structName, methodName, "skill.DeletedAt.Valid",
+		)
+	}
+
+	err = u.skillRepository.DeleteByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

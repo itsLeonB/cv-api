@@ -45,3 +45,11 @@ func NotFoundError(details any) *HttpError {
 		Details:    details,
 	}
 }
+
+func GoneError(details any) *HttpError {
+	return &HttpError{
+		StatusCode: http.StatusGone,
+		Message:    "data no longer available to access",
+		Details:    details,
+	}
+}
