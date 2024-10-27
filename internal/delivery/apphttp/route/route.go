@@ -18,4 +18,5 @@ func (rc *RouteConfig) SetupRoutes() {
 	authRoutes.POST("/register", rc.Controllers.Auth.HandleRegister())
 
 	rc.Router.GET("/about", rc.Controllers.Controller.GetShortSummary())
+	rc.Router.GET("/summary", rc.Controllers.Controller.HandleSummary())
 }

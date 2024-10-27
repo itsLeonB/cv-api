@@ -7,18 +7,18 @@ import (
 )
 
 type Controllers struct {
-	Controller *Controller
+	Controller *ProfileController
 	Auth       *AuthController
 }
 
 func SetupControllers(conn *pgx.Conn) *Controllers {
-	repo := repository.NewRepository(conn)
+	repo := repository.NewProfileRepository(conn)
 	userRepository := repository.NewUserRepository(conn)
 
 	useCase := usecase.NewUseCase(repo)
 	authUsecase := usecase.NewAuthUsecase(userRepository)
 
-	controller := NewController(useCase)
+	controller := NewProfileController(useCase)
 	authController := NewAuthController(authUsecase)
 
 	return &Controllers{
